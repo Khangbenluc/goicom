@@ -34,7 +34,7 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.header("📢 Gọi khách")
 
-    so_goi = st.selectbox("Số thứ tự:", list(range(1, 11)), index=0)
+    so_goi = st.selectbox("Số thứ tự:", list(range(1, 7)), index=0)
     quay = st.selectbox("Quầy:", ["Cơm", "Canh", "Nước", "Tráng miệng"], index=0)
 
     if st.button("🔔 Gọi"):
