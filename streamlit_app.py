@@ -35,7 +35,7 @@ with col1:
     st.header("📢 Gọi khách")
 
     so_goi = st.selectbox("Số thứ tự:", list(range(1, 7)), index=0)
-    quay = st.selectbox("Quầy:", ["Cơm", "Canh", "Nước", "Tráng miệng"], index=0)
+    quay = st.selectbox("Quầy:", ["Cơm", "Canh", "Nước và tráng miệng", "Lễ tân"], index=0)
 
     if st.button("🔔 Gọi"):
         thong_bao = f"Kính mời khách hàng số {so_goi} đến quầy {quay} để nhận món. Xin cảm ơn!"
