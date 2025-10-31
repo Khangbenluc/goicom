@@ -1,7 +1,6 @@
 import streamlit as st
 from gtts import gTTS
 from pathlib import Path
-import base64
 import tempfile
 import os
 
@@ -10,20 +9,21 @@ st.title("🍱 Ứng dụng gọi cơm")
 
 # --- File chuông có sẵn ---
 TING_PATH = Path("ting.mp3")
-
 if not TING_PATH.exists():
     st.error("⚠️ Không tìm thấy file ting.mp3 trong thư mục! Hãy thêm file này vào cùng với goi_com.py.")
     st.stop()
 
-# --- Khởi tạo session state ---
+# --- Session state ---
 if "tong_tien" not in st.session_state:
     st.session_state.tong_tien = 0
 if "so_hien" not in st.session_state:
     st.session_state.so_hien = None
 if "thong_bao" not in st.session_state:
     st.session_state.thong_bao = ""
-if "phat_am_thanh" not in st.session_state:
-    st.session_state.phat_am_thanh = False
+if "ting_bytes" not in st.session_state:
+    st.session_state.ting_bytes = TING_PATH.read_bytes()
+if "tts_bytes" not in st.session_state:
+    st.session_state.tts_bytes = None
 
 # --- Layout chia đôi ---
 col1, col2 = st.columns([2, 1])
@@ -41,8 +41,14 @@ with col1:
         thong_bao = f"Kính mời khách hàng số {so_goi} đến quầy {quay}. Xin cảm ơn!"
         st.session_state.thong_bao = thong_bao
         st.session_state.so_hien = so_goi
-        st.session_state.phat_am_thanh = True
-        st.success(f"Đang gọi khách hàng số {so_goi} đến quầy {quay}...")
+
+        # Tạo file TTS tạm thời
+        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+            gTTS(thong_bao, lang="vi").save(tmp.name)
+            st.session_state.tts_bytes = Path(tmp.name).read_bytes()
+        os.remove(tmp.name)
+
+        st.success(f"Đã tạo lời mời cho khách hàng số {so_goi} đến quầy {quay}")
 
     # Hiển thị số to
     if st.session_state.so_hien:
@@ -52,6 +58,14 @@ with col1:
             f"</div>",
             unsafe_allow_html=True
         )
+
+    # Hiển thị trình phát âm thanh (nếu đã tạo)
+    if st.session_state.tts_bytes:
+        st.markdown("#### 🔊 Chuông báo:")
+        st.audio(st.session_state.ting_bytes, format="audio/mp3")
+
+        st.markdown("#### 🗣️ Lời mời khách hàng:")
+        st.audio(st.session_state.tts_bytes, format="audio/mp3")
 
 # =============================
 # CỘT PHẢI: MÁY TÍNH TIỀN
@@ -76,54 +90,7 @@ with col2:
         st.success("Đã reset tổng tiền.")
 
 # =============================
-# PHÁT ÂM THANH (ting -> TTS)
-# =============================
-def file_to_b64(file_path: Path):
-    """Chuyển file mp3 thành data URI base64 để nhúng HTML"""
-    data = file_path.read_bytes()
-    b64 = base64.b64encode(data).decode()
-    return f"data:audio/mp3;base64,{b64}"
-
-def tts_to_b64(text: str):
-    """Tạo file tạm từ gTTS, trả về base64 data URI"""
-    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
-        temp_path = tmp.name
-    try:
-        gTTS(text, lang="vi").save(temp_path)
-        b64 = base64.b64encode(Path(temp_path).read_bytes()).decode()
-        return f"data:audio/mp3;base64,{b64}"
-    finally:
-        os.remove(temp_path)
-
-if st.session_state.phat_am_thanh:
-    ting_uri = file_to_b64(TING_PATH)
-    tts_uri = tts_to_b64(st.session_state.thong_bao)
-
-    # HTML + JS phát tuần tự: ting -> tts
-    html = f"""
-    <div>
-      <audio id="ting" preload="auto" src="{ting_uri}"></audio>
-      <audio id="tts" preload="auto" src="{tts_uri}"></audio>
-    </div>
-    <script>
-      const ting = document.getElementById("ting");
-      const tts = document.getElementById("tts");
-      ting.play().catch(e => {{
-          console.log("Không tự phát được ting:", e);
-          tts.play().catch(e2 => console.log("Không tự phát được TTS:", e2));
-      }});
-      ting.onended = () => {{
-          tts.play().catch(e => console.log("Không tự phát được TTS:", e));
-      }};
-    </script>
-    """
-    st.markdown(html, unsafe_allow_html=True)
-
-    # Reset flag
-    st.session_state.phat_am_thanh = False
-
-# =============================
 # Ghi chú cuối trang
 # =============================
 st.markdown("---")
-st.caption("© 2025 - Ứng dụng Gọi Cơm | Phiên bản thử nghiệm")
+st.caption("© 2025 - Ứng dụng Gọi Cơm | Dùng file ting.mp3 trong cùng thư mục.")
