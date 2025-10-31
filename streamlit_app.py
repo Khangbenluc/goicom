@@ -37,7 +37,7 @@ with col1:
     so_goi = st.selectbox("Số thứ tự:", list(range(1, 7)), index=0)
     quay = st.selectbox("Quầy:", ["Cơm", "Canh", "Nước và tráng miệng", "Lễ tân"], index=0)
 
-    if st.button("🔔 Gọi"):
+    if st.button("🔔 Gọi", type="primary"):
         thong_bao = f"Kính mời khách hàng số {so_goi} đến quầy {quay} để nhận món. Xin cảm ơn!"
         st.session_state.thong_bao = thong_bao
         st.session_state.so_hien = so_goi
@@ -85,7 +85,7 @@ with col2:
         unsafe_allow_html=True
     )
 
-    if st.button("🧾 Reset tổng"):
+    if st.button("🧾 Reset tổng", type="secondary"):
         st.session_state.tong_tien = 0
         st.success("Đã reset tổng tiền.")
 
