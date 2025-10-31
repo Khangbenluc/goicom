@@ -38,7 +38,7 @@ with col1:
     quay = st.selectbox("Quầy:", ["Cơm", "Canh", "Nước", "Tráng miệng"], index=0)
 
     if st.button("🔔 Gọi"):
-        thong_bao = f"Kính mời khách hàng số {so_goi} đến quầy {quay}. Xin cảm ơn!"
+        thong_bao = f"Kính mời khách hàng số {so_goi} đến quầy {quay} để nhận món. Xin cảm ơn!"
         st.session_state.thong_bao = thong_bao
         st.session_state.so_hien = so_goi
 
@@ -54,7 +54,7 @@ with col1:
     if st.session_state.so_hien:
         st.markdown(
             f"<div style='text-align:center; margin-top:20px;'>"
-            f"<span style='font-size:120px; color:red; font-weight:bold;'>{st.session_state.so_hien}</span>"
+            f"<span style='font-size:150px; color:red; font-weight:bold;'>{st.session_state.so_hien}</span>"
             f"</div>",
             unsafe_allow_html=True
         )
