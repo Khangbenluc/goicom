@@ -74,7 +74,7 @@ with col2:
     st.header("💰 Máy tính tiền")
 
     col_btns = st.columns(3)
-    for i, so_tien in enumerate([10000, 20000, 30000, 40000, 50000):
+    for i, so_tien in enumerate([10000, 20000, 30000, 40000, 50000]):
         if col_btns[i % 3].button(f"+{so_tien//1} vnđ", key=f"t{so_tien}"):
             st.session_state.tong_tien += so_tien
 
